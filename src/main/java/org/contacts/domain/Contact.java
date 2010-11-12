@@ -1,12 +1,22 @@
 package org.contacts.domain;
 
+import org.hibernate.validator.constraints.Email;
+
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Contact {
   private long id = -1;
+
+  @NotNull
   private String firstName;
+
+  @NotNull
   private String lastName;
+
+  @NotNull
+  @Email
   private String emailAddress;
 
   public Contact() {

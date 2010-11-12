@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static org.contacts.test.XPathAssert.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = WebAppContextLoader.class)
@@ -28,8 +29,8 @@ public class ContactsIntegrationTests {
   @Autowired
   protected HttpServlet servlet;
 
-//  @Autowired
-//  protected ContactRepository repository;
+  @Autowired
+  protected ContactRepository repository;
 
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
@@ -38,16 +39,17 @@ public class ContactsIntegrationTests {
   @Before
   public void setUp() {
     xpath = XPathAssert.createXPath();
+    repository.deleteAll();
   }
 
   @Test
   public void servletConfiguredAndInjected() {
     assertNotNull(servlet);
-//    assertNotNull(repository);
+    assertNotNull(repository);
   }
 
   @Test
-  public void crateNewContactWillReturnUpdatedInfo() throws Exception {
+  public void createNewContactWillReturnUpdatedInfo() throws Exception {
     initRequestResponse("xml", "POST", "/contacts");
     setRequestContent(buildXmlContent(new Contact("John", "Smith", "john.smith@integrationtest.org")));
 
@@ -58,6 +60,16 @@ public class ContactsIntegrationTests {
     assertResponseContainsElementWithValue("/contact/firstName", "John");
     assertResponseContainsElementWithValue("/contact/lastName", "Smith");
     assertResponseContainsElementWithValue("/contact/emailAddress", "john.smith@integrationtest.org");
+  }
+
+  @Test
+  public void createNewContactWillReturnValidationError() throws Exception {
+    initRequestResponse("xml", "POST", "/contacts");
+    setRequestContent(buildXmlContent(new Contact()));
+
+    sendRequest();
+
+    assertResponseCodeEquals(500);
   }
 
   @Test
@@ -120,7 +132,11 @@ public class ContactsIntegrationTests {
   }
 
   private void assertGoodResponseCode() {
-    assertEquals(200, response.getStatus());
+    assertResponseCodeEquals(200);
+  }
+
+  private void assertResponseCodeEquals(int code) {
+    assertEquals(code, response.getStatus());
   }
 
   private void assertResponseContainsElement(String elementName) throws UnsupportedEncodingException {

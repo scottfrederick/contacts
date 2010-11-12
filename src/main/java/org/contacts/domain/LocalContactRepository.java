@@ -1,7 +1,10 @@
 package org.contacts.domain;
 
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
 
+@Repository
 public class LocalContactRepository implements ContactRepository {
   private Map<Long, Contact> contacts;
 
@@ -26,5 +29,9 @@ public class LocalContactRepository implements ContactRepository {
 
   public void delete(long id) {
     contacts.remove(id);
+  }
+
+  public void deleteAll() {
+    contacts.clear();
   }
 }

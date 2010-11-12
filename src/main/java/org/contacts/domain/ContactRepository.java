@@ -10,4 +10,6 @@ public interface ContactRepository {
   List<Contact> getAll();
 
   void delete(long id);
+
+  void deleteAll();
 }

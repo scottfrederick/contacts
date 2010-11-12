@@ -7,11 +7,15 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:oxm="http://www.springframework.org/schema/oxm"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"
        default-lazy-init="false">
 
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="webBindingInitializer">
+      <bean class="org.springframework.web.bind.support.ConfigurableWebBindingInitializer" p:validator-ref="validator"/>
+    </property>
     <property name="messageConverters">
       <list>
         <bean id="marshallingHttpMessageConverter"
@@ -47,7 +51,19 @@
     <oxm:class-to-be-bound name="org.contacts.domain.Contacts"/>
   </oxm:jaxb2-marshaller>
 
-  <context:component-scan base-package="org.contacts.services"/>
+  <context:component-scan base-package="org.contacts.controllers"/>
+  <context:component-scan base-package="org.contacts.domain"/>
 
-  <bean class="org.contacts.domain.LocalContactRepository"/>
+  <!-- enable Spring AOP support -->
+  <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+  <!-- declare the validator aspect and inject the validator into it -->
+  <bean class="org.contacts.aspects.RequestBodyValidatorAspect">
+    <property name="validator" ref="validator"/>
+  </bean>
+
+  <bean id="validator" class="org.contacts.validation.TypeMatchingValidator"/>
+
+  <!-- declare all Validator beans, these will be discovered by TypeMatchingValidator -->
+  <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 </beans>

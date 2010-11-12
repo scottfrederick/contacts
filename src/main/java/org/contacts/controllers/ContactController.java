@@ -1,4 +1,4 @@
-package org.contacts.services;
+package org.contacts.controllers;
 
 import org.contacts.domain.Contact;
 import org.contacts.domain.ContactRepository;

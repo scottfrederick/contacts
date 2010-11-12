@@ -1,7 +1,7 @@
 package org.springframework.test.context.support;
 
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletConfig;
@@ -16,19 +16,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class WebAppContextLoader extends AbstractContextLoader {
-  public ConfigurableApplicationContext loadContext(final String... locations) throws Exception {
-    GenericWebApplicationContext webContext = createWebAppContext();
-    ServletContext servletContext = createServletContext(webContext, "/target/classes");
+  private String outputDirectory = "/target/classes";
+  private String resourceSuffix = "-context.xml";
 
-    loadBeanDefinitions(webContext, locations);
+  public ApplicationContext loadContext(final String... locations) throws Exception {
+    GenericWebApplicationContext testWebContext = createWebAppContext();
 
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(webContext);
+    loadBeanDefinitions(testWebContext, locations);
 
-    webContext.refresh();
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(testWebContext);
 
-    initializeServlets(webContext, servletContext);
+    testWebContext.refresh();
 
-    return webContext;
+    DispatcherServlet servlet = initializeServlet(testWebContext);
+
+    return servlet.getWebApplicationContext();
   }
 
   private GenericWebApplicationContext createWebAppContext() {
@@ -37,8 +39,8 @@ public class WebAppContextLoader extends AbstractContextLoader {
     return webContext;
   }
 
-  private ServletContext createServletContext(GenericWebApplicationContext webContext, String resourceBasePath) {
-    MockServletContext servletContext = new MockServletContext(resourceBasePath, new FileSystemResourceLoader());
+  private ServletContext createServletContext(GenericWebApplicationContext webContext) {
+    MockServletContext servletContext = new MockServletContext(outputDirectory, new FileSystemResourceLoader());
     servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webContext);
     webContext.setServletContext(servletContext);
     return servletContext;
@@ -49,18 +51,44 @@ public class WebAppContextLoader extends AbstractContextLoader {
     beanReader.loadBeanDefinitions(locations);
   }
 
-  private void initializeServlets(WebApplicationContext webContext, ServletContext servletContext) throws ServletException {
-    Map<String, DispatcherServlet> servlets = webContext.getBeansOfType(DispatcherServlet.class);
-    for (Entry<String, DispatcherServlet> entry : servlets.entrySet()) {
-      String servletName = entry.getKey();
-      DispatcherServlet servlet = entry.getValue();
+  private DispatcherServlet initializeServlet(GenericWebApplicationContext webContext) throws ServletException {
+    Entry<String, DispatcherServlet> servletBean = getDispatcherServletBean(webContext);
 
-      MockServletConfig servletConfig = new MockServletConfig(servletContext, servletName);
-      servlet.init(servletConfig);
-    }
+    ServletContext servletContext = createServletContext(webContext);
+
+    String servletName = servletBean.getKey();
+    DispatcherServlet servlet = servletBean.getValue();
+
+    MockServletConfig servletConfig = new MockServletConfig(servletContext, servletName);
+    servlet.init(servletConfig);
+
+    return servlet;
   }
 
+  private Entry<String, DispatcherServlet> getDispatcherServletBean(GenericWebApplicationContext webContext) {
+    Map<String, DispatcherServlet> servletBeans = webContext.getBeansOfType(DispatcherServlet.class);
+
+    if (servletBeans.size() == 0) {
+      throw new IllegalStateException("No DispatcherServlet was found in the test application context.");
+    }
+
+    if (servletBeans.size() > 1) {
+      throw new IllegalStateException("Multiple DispatcherServlets were found in the test application context.");
+    }
+
+    return servletBeans.entrySet().iterator().next();
+  }
+
+  @Override
   protected String getResourceSuffix() {
-    return "-context.xml";
+    return resourceSuffix;
+  }
+
+  public void setResourceSuffix(String resourceSuffix) {
+    this.resourceSuffix = resourceSuffix;
+  }
+
+  public void setOutputDirectory(String outputDirectory) {
+    this.outputDirectory = outputDirectory;
   }
 }
