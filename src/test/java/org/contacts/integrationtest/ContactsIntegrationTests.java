@@ -69,7 +69,7 @@ public class ContactsIntegrationTests {
 
     sendRequest();
 
-    assertResponseCodeEquals(500);
+    assertResponseCodeEquals(400);
   }
 
   @Test

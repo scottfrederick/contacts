@@ -14,7 +14,7 @@
   <properties>
     <deployment.prefix>${project.artifactId}</deployment.prefix>
     <deployment.version>${project.version}</deployment.version>
-    <spring.framework.version>3.0.2.RELEASE</spring.framework.version>
+    <spring.framework.version>3.0.5.RELEASE</spring.framework.version>
   </properties>
 
   <repositories>
@@ -84,18 +84,16 @@
         </executions>
       </plugin>
 
-      <!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>tomcat-maven-plugin</artifactId>
         <version>1.0</version>
       </plugin>
-      -->
 
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty</artifactId>
-        <version>6.1.5</version>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.22</version>
       </plugin>
     </plugins>
   </build>
@@ -245,7 +243,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.15</version>
+      <version>1.2.16</version>
     </dependency>
 
     <dependency>

@@ -11,20 +11,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"
        default-lazy-init="false">
 
-  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
-  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-    <property name="webBindingInitializer">
-      <bean class="org.springframework.web.bind.support.ConfigurableWebBindingInitializer" p:validator-ref="validator"/>
-    </property>
-    <property name="messageConverters">
-      <list>
-        <bean id="marshallingHttpMessageConverter"
-              class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"
-              p:marshaller-ref="marshaller"
-              p:unmarshaller-ref="marshaller"/>
-      </list>
-    </property>
-  </bean>
+  <mvc:annotation-driven validator="validator"/>
 
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
     <property name="mediaTypes">
@@ -43,13 +30,14 @@
   </bean>
 
   <bean id="xmlView" class="org.springframework.web.servlet.view.xml.MarshallingView">
-    <property name="marshaller" ref="marshaller"/>
+    <property name="marshaller">
+      <oxm:jaxb2-marshaller id="marshaller">
+        <oxm:class-to-be-bound name="org.contacts.domain.Contact"/>
+        <oxm:class-to-be-bound name="org.contacts.domain.Contacts"/>
+        <oxm:class-to-be-bound name="org.contacts.domain.ContactError"/>
+      </oxm:jaxb2-marshaller>
+    </property>
   </bean>
-
-  <oxm:jaxb2-marshaller id="marshaller">
-    <oxm:class-to-be-bound name="org.contacts.domain.Contact"/>
-    <oxm:class-to-be-bound name="org.contacts.domain.Contacts"/>
-  </oxm:jaxb2-marshaller>
 
   <context:component-scan base-package="org.contacts.controllers"/>
   <context:component-scan base-package="org.contacts.domain"/>
