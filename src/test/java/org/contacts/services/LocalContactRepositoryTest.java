@@ -1,5 +1,6 @@
-package org.contacts.domain;
+package org.contacts.services;
 
+import org.contacts.domain.Contact;
 import org.junit.Before;
 import org.junit.Test;
 

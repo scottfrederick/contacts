@@ -1,4 +1,6 @@
-package org.contacts.domain;
+package org.contacts.services;
+
+import org.contacts.domain.Contact;
 
 import java.util.List;
 

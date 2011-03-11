@@ -9,14 +9,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Contact {
   private long id = -1;
 
-  @NotNull
+//  @NotNull
   private String firstName;
 
-  @NotNull
+//  @NotNull
   private String lastName;
 
-  @NotNull
-  @Email
+//  @NotNull
+//  @Email
   private String emailAddress;
 
   public Contact() {

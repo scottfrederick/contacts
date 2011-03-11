@@ -1,8 +1,7 @@
 package org.contacts.controllers;
 
 import org.contacts.domain.Contact;
-import org.contacts.domain.ContactError;
-import org.contacts.domain.ContactRepository;
+import org.contacts.services.ContactRepository;
 import org.contacts.domain.Contacts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package org.contacts.integrationtest;
 
 import org.contacts.domain.Contact;
-import org.contacts.domain.ContactRepository;
+import org.contacts.services.ContactRepository;
 import org.contacts.test.XPathAssert;
 import org.junit.Before;
 import org.junit.Test;
